@@ -1,0 +1,55 @@
+CREATE DEFINER=`root`@`%` FUNCTION `GetNumber`(in_string VARCHAR(50), in_index INTEGER) RETURNS int
+    NO SQL
+BEGIN
+    DECLARE ctrNumber VARCHAR(50);
+    DECLARE finNumber VARCHAR(50) DEFAULT '';
+    DECLARE sChar VARCHAR(1);
+    DECLARE inti INTEGER DEFAULT 1;
+    DECLARE tmp_index INTEGER DEFAULT 0;
+    DECLARE tmp_continuous TINYINT DEFAULT 1;
+    DECLARE tmp_find TINYINT DEFAULT 0;
+    IF LENGTH(in_string) > 0 THEN
+        WHILE(inti <= LENGTH(in_string)) DO
+  
+            SET sChar = SUBSTRING(in_string, inti, 1);
+            SET ctrNumber = FIND_IN_SET(sChar, '0,1,2,3,4,5,6,7,8,9'); 
+            IF ctrNumber > 0 THEN
+                IF in_index > 0 THEN
+                    IF inti = 1 THEN
+                        SET tmp_index = tmp_index + 1;
+                    ELSEIF tmp_continuous = 0 THEN
+                        SET tmp_index = tmp_index + 1;
+                        SET tmp_continuous = 1;
+                    END IF;
+
+                    IF tmp_index = in_index THEN
+                        SET finNumber = CONCAT(finNumber, sChar);
+                        SET tmp_find = 1;
+                    END IF;
+                ELSE
+                    SET finNumber = CONCAT(finNumber, sChar);
+                END IF;
+            ELSE
+                IF in_index > 0 THEN
+                    IF tmp_find = 1 THEN
+                        SET inti = LENGTH(in_string);
+                    ELSE
+                        SET tmp_continuous = 0;
+                        SET finNumber = '';
+                    END IF;
+                END IF;
+            END IF;
+            SET inti = inti + 1;
+
+        END WHILE;
+
+        IF finNumber = '' THEN
+            RETURN 0;
+        ELSE
+            RETURN CAST(finNumber AS UNSIGNED);
+        END IF;
+        
+    ELSE
+        RETURN 0;
+    END IF;    
+END
